@@ -1,0 +1,341 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700&family=Fira+Code:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Lexend", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Fira Code", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Light Mode Colors */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f9fafb;
+  --color-bg-tertiary: #f3f4f6;
+
+  --color-text-primary: #1f2937;
+  --color-text-secondary: #6b7280;
+  --color-text-tertiary: #9ca3af;
+
+  --color-border: #e5e7eb;
+  --color-border-light: #f0f1f3;
+
+  --color-accent-primary: #10b981;
+  --color-accent-secondary: #4d96ff;
+  --color-accent-warn: #fbbf24;
+  --color-accent-success: #10b981;
+  --color-accent-error: #ef4444;
+
+  --color-shadow-sm: 0 2px 8px rgb(0 0 0 / 0.08);
+  --color-shadow-md: 0 4px 12px rgb(0 0 0 / 0.08);
+  --color-shadow-lg: 0 8px 24px rgb(0 0 0 / 0.1);
+}
+
+@supports (color: var(--color-bg-primary)) {
+  :root {
+    color-scheme: light;
+  }
+
+  body {
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+  }
+
+  /* Dark Mode Override */
+  :root.dark {
+    color-scheme: dark;
+    --color-bg-primary: #0f1117;
+    --color-bg-secondary: #161b22;
+    --color-bg-tertiary: #21262d;
+
+    --color-text-primary: #c9d1d9;
+    --color-text-secondary: #8b949e;
+    --color-text-tertiary: #6e7681;
+
+    --color-border: #30363d;
+    --color-border-light: #21262d;
+
+    --color-accent-primary: #10b981;
+    --color-accent-secondary: #58a6ff;
+    --color-accent-warn: #d29922;
+    --color-accent-success: #3fb950;
+    --color-accent-error: #f85149;
+
+    --color-shadow-sm: 0 2px 8px rgb(0 0 0 / 0.3);
+    --color-shadow-md: 0 4px 12px rgb(0 0 0 / 0.3);
+    --color-shadow-lg: 0 8px 24px rgb(0 0 0 / 0.4);
+  }
+
+  body {
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+}
+
+/* Suppress mouse-focus rings only; restore for keyboard navigation. */
+*:focus:not(:focus-visible) {
+  outline: none !important;
+}
+
+/* Keyboard focus — visible 2px emerald ring */
+*:focus-visible {
+  outline: 2px solid #10b981 !important;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.recharts-wrapper, .recharts-surface,
+.recharts-wrapper:focus, .recharts-surface:focus {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Honour OS reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Base highlight animation for chart elements */
+.chart-highlight-active:active {
+  transform: scale(0.98);
+  transition: transform 0.1s ease;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Themed horizontal scrollbar for charts */
+  .chart-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #10b981 transparent;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+  }
+  .chart-scroll::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+  }
+  .chart-scroll::-webkit-scrollbar-track {
+    background: rgba(148, 163, 184, 0.1);
+    border-radius: 999px;
+  }
+  .chart-scroll::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #10b981, #4d96ff);
+    border-radius: 999px;
+  }
+  .chart-scroll::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(90deg, #059669, #2563eb);
+  }
+
+  /* Custom utility classes for design system */
+  .card-shadow {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  :root.dark .card-shadow {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .card-soft {
+    @apply bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 transition-all;
+  }
+
+  .input-modern {
+    @apply w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-300 placeholder-gray-400 dark:placeholder-gray-500 transition-all focus:ring-2 focus:ring-emerald-500/20 dark:focus:ring-emerald-500/30;
+  }
+
+  .btn-primary {
+    @apply bg-black dark:bg-slate-900 text-white rounded-2xl font-bold transition-all hover:bg-gray-900 dark:hover:bg-slate-800 active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-gray-300 rounded-2xl font-bold transition-all hover:bg-gray-200 dark:hover:bg-slate-700 active:scale-95;
+  }
+
+  .accent-gradient {
+    background: linear-gradient(135deg, #10b981 0%, #4d96ff 100%);
+  }
+
+  .text-accent {
+    @apply text-emerald-600 dark:text-emerald-400;
+  }
+
+  .bg-accent-light {
+    @apply bg-emerald-50 dark:bg-slate-800;
+  }
+
+  /* ============================================
+     TYPOGRAPHY SYSTEM
+     Lexend → UI text (titles, body, labels, buttons)
+     Fira Code → numbers, currency, dates, IDs, code
+     ============================================ */
+
+  /* Display — biggest titles (dashboard headings, page titles) */
+  .text-display {
+    font-family: "Lexend", ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+
+  /* Title — card headers, section titles, modal titles */
+  .text-title {
+    font-family: "Lexend", ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+
+  /* Label — buttons, nav, small caps, form labels */
+  .text-label {
+    font-family: "Lexend", ui-sans-serif, system-ui, sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    line-height: 1.3;
+  }
+
+  /* Body — descriptions, paragraphs, list items */
+  .text-body {
+    font-family: "Lexend", ui-sans-serif, system-ui, sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.005em;
+    line-height: 1.55;
+  }
+
+  /* Code — invoice IDs, references, plain mono */
+  .text-code {
+    font-family: "Fira Code", ui-monospace, monospace;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  /* Numeric — table cells, balances, counts (important code) */
+  .text-num {
+    font-family: "Fira Code", ui-monospace, monospace;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+
+  /* Highlight — totals, prominent prices, KPI values */
+  .text-num-bold {
+    font-family: "Fira Code", ui-monospace, monospace;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Base body sizing — Lexend designed for readability */
+body {
+  font-family: "Lexend", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* PWA standalone — respect device safe areas (notch/status bar) */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  /* Prevent overscroll bounce in standalone */
+  overscroll-behavior-y: none;
+}
+
+/* PWA standalone-mode tweaks — only apply when installed as app */
+@media (display-mode: standalone) {
+  html, body {
+    /* Solid bg covers status bar area on iOS */
+    background-color: #ffffff;
+  }
+  :root.dark, :root.dark body {
+    background-color: #0f1117;
+  }
+  /* Disable text selection on UI chrome (keep on inputs) */
+  body {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+  input, textarea, [contenteditable] {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+}
+
+/* Headings — slight tightening only at large sizes */
+h1, h2 {
+  font-family: "Lexend", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+h3, h4, h5, h6 {
+  font-family: "Lexend", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  line-height: 1.25;
+}
+
+/* Uppercase labels — Lexend cramped at small uppercase. Slight loosening. */
+.uppercase {
+  letter-spacing: 0.02em;
+}
+
+/* Small text (under 13px) — give breathing room */
+.text-xs, .text-\[10px\], .text-\[11px\], .text-\[9px\] {
+  letter-spacing: 0.015em;
+  line-height: 1.4;
+}
+
+/* Mobile spacing tweaks — tighter on small screens */
+@media (max-width: 640px) {
+  body {
+    font-size: 15px;
+  }
+
+  /* Reduce padding on cards inside mobile */
+  .card-soft {
+    border-radius: 1rem;
+  }
+}
+
+/* Auto-apply mono to common numeric contexts */
+input[type="number"],
+input[type="tel"],
+.tabular-nums {
+  font-family: "Fira Code", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Currency/price elements — opt-in via data attribute */
+[data-money],
+[data-num] {
+  font-family: "Fira Code", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: auto;
+  color: transparent;
+  background: transparent;
+  cursor: pointer;
+}
