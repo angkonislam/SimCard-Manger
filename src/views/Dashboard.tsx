@@ -3,6 +3,7 @@ import { FAB } from '../components/FAB';
 import { useApp } from '../AppContext';
 import { CustomDatePicker } from '../components/CustomDatePicker';
 import { NotificationCenter } from '../components/NotificationCenter';
+import { useConfirm } from '../components/ConfirmDialog';
 import { getInitials } from '../utils';
 
 export function Dashboard() {
@@ -17,6 +18,7 @@ export function Dashboard() {
     handleCreateNew,
     drafts, loadDraft, deleteDraft,
   } = useApp();
+  const { confirm } = useConfirm();
 
   return (
     <div key="dashboard" className="flex-1 flex flex-col p-6 overflow-y-auto pb-24 bg-white dark:bg-slate-950 transition-colors">
@@ -135,7 +137,15 @@ export function Dashboard() {
                       <Pencil className="w-3.5 h-3.5" />
                     </button>
                     <button
-                      onClick={() => { if (confirm(`Delete draft ${d.invoice_number}?`)) deleteDraft(d.id); }}
+                      onClick={async () => {
+                        const ok = await confirm({
+                          title: 'Delete draft',
+                          message: `Delete draft ${d.invoice_number}?`,
+                          confirmText: 'Delete',
+                          danger: true,
+                        });
+                        if (ok) deleteDraft(d.id);
+                      }}
                       className="w-8 h-8 rounded-lg bg-white dark:bg-slate-900 border border-red-200 dark:border-red-500/30 flex items-center justify-center text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/20 transition-all active:scale-90"
                       aria-label="Delete draft"
                     >

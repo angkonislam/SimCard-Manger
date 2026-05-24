@@ -3,6 +3,7 @@ import { X, Settings as SettingsIcon, User, CheckCircle2, AlertTriangle, UserPlu
 import { createClient } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { useToast } from '../components/Toast';
+import { useConfirm } from '../components/ConfirmDialog';
 import { validEmail, minLen } from '../lib/validation';
 
 interface Props {
@@ -46,6 +47,7 @@ export function SettingsModal({ onClose }: Props) {
   const [newRole, setNewRole] = useState<Role>('staff');
 
   const t = useToast();
+  const { confirm } = useConfirm();
   const flash = (kind: 'ok' | 'err', text: string) => {
     setMsg({ kind, text });
     if (kind === 'ok') t.success(text); else t.error(text);
@@ -129,7 +131,12 @@ export function SettingsModal({ onClose }: Props) {
 
   const sendPasswordReset = async (id: string, email: string) => {
     if (!isSupabaseConfigured) return;
-    if (!confirm(`Send password reset email to ${email}?`)) return;
+    const ok = await confirm({
+      title: 'Send password reset',
+      message: `Send password reset email to ${email}?`,
+      confirmText: 'Send',
+    });
+    if (!ok) return;
     setBusy(`reset-${id}`);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -147,7 +154,13 @@ export function SettingsModal({ onClose }: Props) {
   const removeUser = async (id: string, email: string) => {
     if (!isSupabaseConfigured) return;
     if (id === currentUserId) { flash('err', "Can't remove yourself"); return; }
-    if (!confirm(`Remove access for ${email}? Profile will be deleted, but auth account remains.`)) return;
+    const ok = await confirm({
+      title: 'Remove user',
+      message: `Remove access for ${email}? Profile will be deleted, but auth account remains.`,
+      confirmText: 'Remove',
+      danger: true,
+    });
+    if (!ok) return;
     setBusy(`del-${id}`);
     try {
       const { error } = await supabase.from('user_profiles').delete().eq('id', id);
