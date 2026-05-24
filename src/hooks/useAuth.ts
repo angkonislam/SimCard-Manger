@@ -11,6 +11,7 @@ export interface AuthState {
   authChecked: boolean;
   userRole: Role | null;
   roleChecked: boolean;
+  accessDenied: boolean;
 }
 
 export function useAuth(): AuthState {
@@ -18,6 +19,7 @@ export function useAuth(): AuthState {
   const [authChecked, setAuthChecked] = useState(false);
   const [userRole, setUserRole] = useState<Role | null>(null);
   const [roleChecked, setRoleChecked] = useState(false);
+  const [accessDenied, setAccessDenied] = useState(false);
 
   useEffect(() => {
     if (!isSupabaseConfigured) {
@@ -33,6 +35,7 @@ export function useAuth(): AuthState {
       if (!sess) {
         setUserRole(null);
         setRoleChecked(false);
+        setAccessDenied(false);
       }
     });
     return () => { sub.subscription.unsubscribe(); };
@@ -59,25 +62,36 @@ export function useAuth(): AuthState {
         return;
       }
 
-      // First user bootstraps as admin
+      // No profile row — only auto-bootstrap if this is the very first user in the system.
+      // Otherwise, an admin must invite them; auto-recreate on every login is a leak (deleted
+      // profiles kept respawning whenever a stale session was restored).
       const { count } = await supabase
         .from('user_profiles')
         .select('id', { count: 'exact', head: true });
       const firstUser = (count ?? 0) === 0;
-      const newRole: Role = firstUser ? 'admin' : 'staff';
+
+      if (!firstUser) {
+        // Profile missing and not first user → access revoked. Sign out and show denial.
+        await supabase.auth.signOut();
+        if (!cancelled) {
+          setAccessDenied(true);
+          setRoleChecked(true);
+        }
+        return;
+      }
 
       const { error: insErr } = await supabase
         .from('user_profiles')
-        .insert({ id: uid, email, role: newRole });
+        .insert({ id: uid, email, role: 'admin' });
       if (insErr) console.error('Profile bootstrap failed:', insErr);
 
       if (!cancelled) {
-        setUserRole(newRole);
+        setUserRole('admin');
         setRoleChecked(true);
       }
     })();
     return () => { cancelled = true; };
   }, [session?.user?.id]);
 
-  return { session, authChecked, userRole, roleChecked };
+  return { session, authChecked, userRole, roleChecked, accessDenied };
 }

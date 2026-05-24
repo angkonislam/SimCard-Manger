@@ -39,7 +39,7 @@ import { downloadInvoicePDF } from './lib/invoicePdf';
 export default function App() {
   const toast = useToast();
   // ── Auth session + role gate (extracted hook) ────────────
-  const { session, authChecked, userRole, roleChecked } = useAuth();
+  const { session, authChecked, userRole, roleChecked, accessDenied } = useAuth();
   const can = (p: Permission) => canFn(userRole, p);
 
   const [view, setView] = useState<View>(() => {
@@ -1271,7 +1271,7 @@ export default function App() {
     return <AppBootSkeleton />;
   }
   if (authGateActive && !session) {
-    return <AuthScreen />;
+    return <AuthScreen accessDenied={accessDenied} />;
   }
 
   return (

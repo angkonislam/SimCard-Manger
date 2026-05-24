@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Lock, Eye, EyeOff, LogIn, ShieldCheck, Sun, Moon, ArrowLeft } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { supabase, setStaySignedIn, getStaySignedIn } from '../lib/supabase';
 import { validEmail, minLen } from '../lib/validation';
 
 type Screen = 'login' | 'forgot';
 type Theme = 'light' | 'dark';
 
-export function AuthScreen() {
+interface AuthScreenProps {
+  accessDenied?: boolean;
+}
+
+export function AuthScreen({ accessDenied = false }: AuthScreenProps) {
   const [screen, setScreen] = useState<Screen>('login');
+  const [staySignedIn, setStaySignedInState] = useState<boolean>(() => getStaySignedIn());
   const [theme, setTheme] = useState<Theme>(() => {
     const saved = localStorage.getItem('appTheme');
     if (saved === 'light' || saved === 'dark') return saved;
@@ -42,6 +47,9 @@ export function AuthScreen() {
     if (passErr) { setError(passErr); return; }
     setLoading(true);
     try {
+      // Apply storage preference BEFORE sign in so the session token lands in
+      // the correct store (localStorage for persist, sessionStorage otherwise).
+      setStaySignedIn(staySignedIn);
       const { error: err } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (err) throw err;
     } catch (err: any) {
@@ -152,6 +160,26 @@ export function AuthScreen() {
                   </button>
                 </div>
               </div>
+
+              {/* Stay signed in */}
+              <label className="flex items-center gap-2.5 cursor-pointer select-none px-1">
+                <input
+                  type="checkbox"
+                  checked={staySignedIn}
+                  onChange={e => setStaySignedInState(e.target.checked)}
+                  className="w-4 h-4 rounded border-gray-300 dark:border-slate-600 text-emerald-500 focus:ring-emerald-500/40 focus:ring-2 bg-gray-50 dark:bg-slate-800/60 cursor-pointer"
+                />
+                <span className="text-xs font-bold text-gray-600 dark:text-gray-400">
+                  Stay signed in on this browser
+                </span>
+              </label>
+
+              {/* Access denied banner — shown when a deleted user's stale session was auto-signed out */}
+              {accessDenied && !error && (
+                <div className="px-3 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-bold">
+                  Access has been revoked for this account. Contact an administrator.
+                </div>
+              )}
 
               {/* Error */}
               {error && (
