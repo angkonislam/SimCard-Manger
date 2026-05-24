@@ -1083,9 +1083,7 @@ export default function App() {
     // Save to invoice table — unique id from timestamp avoids duplicate-key collisions
     let dbInsertOK = true;
     try {
-      const uniqueId = `${Date.now()}`.slice(-9);
       const { error } = await supabase.from('invoice').insert({
-        id: uniqueId,
         invoice_number: finalInvoice.invoiceNumber,
         customer_id: customer?.customerId || customer?.id,
         customer_name: customer?.name,
@@ -1155,7 +1153,7 @@ export default function App() {
     }
 
     setView('dashboard');
-    setActiveModule('invoices-module');
+    setActiveModule('data-input');
     if (dbInsertOK) {
       toast.success(`Invoice ${finalInvoice.invoiceNumber} created`);
     } else {

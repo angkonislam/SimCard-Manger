@@ -493,19 +493,28 @@ export function CreateInvoice() {
             </div>
           </div>
 
-          <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-full max-w-[400px] px-8 z-10 lg:relative lg:bottom-auto lg:left-auto lg:translate-x-0 lg:mt-6 lg:px-0 lg:max-w-none lg:mb-8 space-y-3">
+          <div className="mt-6 mb-8 space-y-3">
+            {/* Primary action — Save & PDF */}
             <button
-              onClick={saveDraft}
-              className="w-full h-12 bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-amber-700 dark:text-amber-300 rounded-2xl flex items-center justify-center font-bold shadow-sm hover:bg-amber-100 dark:hover:bg-amber-500/25 transition-all active:scale-[0.98]"
+              onClick={() => finalizeInvoice({ withPdf: true })}
+              className="w-full h-14 bg-gradient-to-r from-emerald-500 to-blue-500 text-white rounded-2xl flex items-center justify-center font-bold shadow-2xl hover:scale-[1.01] active:scale-[0.98] transition-all"
             >
-              <span className="text-xs uppercase tracking-[0.15em]">{editingDraftId ? 'Update Draft' : 'Save as Draft'}</span>
+              <span className="text-sm uppercase tracking-[0.12em]">Save &amp; Download PDF</span>
             </button>
-            <div className="grid grid-cols-2 gap-4">
-              <button onClick={() => finalizeInvoice()} className="h-16 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-gray-300 rounded-2xl flex items-center justify-center font-bold shadow-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-all active:scale-[0.98]">
-                <span className="text-sm uppercase tracking-[0.1em]">Save</span>
+
+            {/* Secondary row — Save only + Save as Draft */}
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => finalizeInvoice()}
+                className="h-12 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-gray-200 rounded-2xl flex items-center justify-center font-bold hover:bg-gray-50 dark:hover:bg-slate-800 active:scale-[0.98] transition-all shadow-sm"
+              >
+                <span className="text-xs uppercase tracking-[0.1em]">Save Only</span>
               </button>
-              <button onClick={() => finalizeInvoice({ withPdf: true })} className="h-16 bg-gradient-to-r from-emerald-500 to-blue-500 text-white rounded-2xl flex items-center justify-center font-bold shadow-2xl hover:scale-[1.02] transition-all active:scale-[0.98]">
-                <span className="text-sm uppercase tracking-[0.1em]">Save And PDF</span>
+              <button
+                onClick={saveDraft}
+                className="h-12 bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-amber-700 dark:text-amber-300 rounded-2xl flex items-center justify-center font-bold hover:bg-amber-100 dark:hover:bg-amber-500/25 active:scale-[0.98] transition-all"
+              >
+                <span className="text-xs uppercase tracking-[0.1em]">{editingDraftId ? 'Update Draft' : 'Save Draft'}</span>
               </button>
             </div>
           </div>
