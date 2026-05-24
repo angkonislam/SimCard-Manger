@@ -1287,7 +1287,7 @@ export default function App() {
         <MobileMenu />
 
         <Suspense fallback={<ContentSkeleton view={view} />}>
-          {isLoading && (view === 'dashboard' || view === 'analytics') ? (
+          {isLoading ? (
             <ContentSkeleton view={view} />
           ) : (
             <>
