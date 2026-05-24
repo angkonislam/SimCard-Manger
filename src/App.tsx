@@ -1289,34 +1289,37 @@ export default function App() {
         <Suspense fallback={<ContentSkeleton view={view} />}>
           {isLoading && (view === 'dashboard' || view === 'analytics') ? (
             <ContentSkeleton view={view} />
-          ) : null}
-          {view === 'dashboard' && !isLoading && <Dashboard />}
+          ) : (
+            <>
+              {view === 'dashboard' && <Dashboard />}
 
-          {view === 'invoice-preview' && selectedInvoice && (
-              <InvoicePreview
-                selectedInvoice={selectedInvoice}
-                setView={setView}
-                setActiveModule={setActiveModule}
-              />
-            )}
+              {view === 'invoice-preview' && selectedInvoice && (
+                <InvoicePreview
+                  selectedInvoice={selectedInvoice}
+                  setView={setView}
+                  setActiveModule={setActiveModule}
+                />
+              )}
 
-            {view === 'inventory-list' && <InventoryList />}
+              {view === 'inventory-list' && <InventoryList />}
 
-            {view === 'money-tracking' && <MoneyTracking />}
+              {view === 'money-tracking' && <MoneyTracking />}
 
-            {view === 'customers-list' && <CustomersList />}
+              {view === 'customers-list' && <CustomersList />}
 
-            {view === 'inventory-details' && selectedInventoryItem && <InventoryDetails />}
+              {view === 'inventory-details' && selectedInventoryItem && <InventoryDetails />}
 
-            {view === 'customer-details' && selectedCustomer && <CustomerDetails />}
+              {view === 'customer-details' && selectedCustomer && <CustomerDetails />}
 
-            {view.startsWith('create') && <CreateInvoice />}
+              {view.startsWith('create') && <CreateInvoice />}
 
-            {view === 'analytics' && <Analytics />}
+              {view === 'analytics' && <Analytics />}
 
-            {view === 'todo-list' && <TodoList />}
+              {view === 'todo-list' && <TodoList />}
 
-            {view === 'notes' && <Notes />}
+              {view === 'notes' && <Notes />}
+            </>
+          )}
         </Suspense>
 
           {isTransactionModalOpen && (
