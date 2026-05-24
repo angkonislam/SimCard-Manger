@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { ShieldCheck, RefreshCw, Plus, LayoutGrid, Users, Package, Wallet, X, Sun, Moon, PanelLeftClose, PanelLeftOpen, ListTodo, StickyNote, LogOut, Settings } from 'lucide-react';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import { useApp } from '../AppContext';
@@ -12,16 +12,48 @@ export function Sidebar() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const t = useToast();
 
-  const allNavItems = [
+  const analyticsItems = [
     { module: 'analytics-dashboard' as Module, viewTarget: 'analytics' as View, icon: LayoutGrid, label: 'Dashboard' },
     { module: 'customers-module' as Module, viewTarget: 'customers-list' as View, icon: Users, label: 'Customers' },
-    { module: 'inventory-module' as Module, viewTarget: 'inventory-list' as View, icon: Package, label: 'Inventory' },
-    { module: 'money-module' as Module, viewTarget: 'money-tracking' as View, icon: Wallet, label: 'Money Tracking' },
     { module: 'data-input' as Module, viewTarget: 'dashboard' as View, icon: Plus, label: 'Invoice Creator' },
+    { module: 'inventory-module' as Module, viewTarget: 'inventory-list' as View, icon: Package, label: 'Inventory' },
+  ];
+  const servicesItems = [
+    { module: 'money-module' as Module, viewTarget: 'money-tracking' as View, icon: Wallet, label: 'Money Tracking' },
     { module: 'todo-module' as Module, viewTarget: 'todo-list' as View, icon: ListTodo, label: 'Todo List' },
     { module: 'notes-module' as Module, viewTarget: 'notes' as View, icon: StickyNote, label: 'Notes' },
   ];
-  const navItems = allNavItems.filter(item => !canViewModule || canViewModule(item.module));
+  const filterItems = (items: typeof analyticsItems) => items.filter(item => !canViewModule || canViewModule(item.module));
+
+  const renderNavItem = (item: typeof analyticsItems[0]) => {
+    const isActive = activeModule === item.module;
+    const Icon = item.icon;
+    return (
+      <button
+        key={item.module}
+        onClick={() => { setActiveModule(item.module); setView(item.viewTarget); }}
+        title={c ? item.label : undefined}
+        className={`w-full flex items-center rounded-2xl font-bold transition-all group relative ${
+          c ? 'justify-center p-2.5' : 'gap-3 px-3 py-2.5 text-sm'
+        } ${
+          isActive
+            ? 'bg-gradient-to-r from-emerald-500/10 to-blue-500/10 dark:from-emerald-500/20 dark:to-blue-500/20 text-emerald-600 dark:text-emerald-400 shadow-sm'
+            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-gray-200'
+        }`}
+      >
+        <div className={`shrink-0 ${c ? 'p-2.5 rounded-xl' : 'p-1.5 rounded-lg'} ${isActive ? 'bg-emerald-500/20 dark:bg-emerald-500/30' : 'bg-gray-100 dark:bg-slate-800'}`}>
+          <Icon className={c ? 'w-5 h-5' : 'w-4 h-4'} />
+        </div>
+        {!c && <span className="truncate">{item.label}</span>}
+        {!c && isActive && <div className="ml-auto w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0" />}
+        {c && (
+          <span className="absolute left-full ml-3 px-2.5 py-1.5 bg-gray-900 dark:bg-slate-700 text-white text-xs font-bold rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-150 z-50 shadow-lg">
+            {item.label}
+          </span>
+        )}
+      </button>
+    );
+  };
 
   return (
     <aside className={`hidden lg:flex flex-col fixed left-0 top-0 bottom-0 bg-white dark:bg-slate-950 border-r border-gray-200 dark:border-slate-800 z-40 overflow-y-auto overflow-x-hidden transition-all duration-300 no-scrollbar ${c ? 'w-[68px]' : 'w-64'}`}>
@@ -38,37 +70,26 @@ export function Sidebar() {
         </button>
       </div>
 
-      {/* Nav — all items unified, no section labels */}
-      <nav className={`flex-1 py-3 space-y-1 ${c ? 'px-2' : 'px-3'}`}>
-        {navItems.map(item => {
-          const isActive = activeModule === item.module;
-          const Icon = item.icon;
-          return (
-            <button
-              key={item.module}
-              onClick={() => { setActiveModule(item.module); setView(item.viewTarget); }}
-              title={c ? item.label : undefined}
-              className={`w-full flex items-center rounded-2xl font-bold transition-all group relative ${
-                c ? 'justify-center p-2.5' : 'gap-3 px-3 py-2.5 text-sm'
-              } ${
-                isActive
-                  ? 'bg-gradient-to-r from-emerald-500/10 to-blue-500/10 dark:from-emerald-500/20 dark:to-blue-500/20 text-emerald-600 dark:text-emerald-400 shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-gray-200'
-              }`}
-            >
-              <div className={`shrink-0 rounded-xl ${c ? 'p-2.5' : 'p-1.5 rounded-lg'} ${isActive ? 'bg-emerald-500/20 dark:bg-emerald-500/30' : 'bg-gray-100 dark:bg-slate-800'}`}>
-                <Icon className={c ? 'w-5 h-5' : 'w-4 h-4'} />
-              </div>
-              {!c && <span className="truncate">{item.label}</span>}
-              {!c && isActive && <div className="ml-auto w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0" />}
-              {c && (
-                <span className="absolute left-full ml-3 px-2.5 py-1.5 bg-gray-900 dark:bg-slate-700 text-white text-xs font-bold rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-150 z-50 shadow-lg">
-                  {item.label}
-                </span>
-              )}
-            </button>
-          );
-        })}
+      {/* Nav — 2 sections */}
+      <nav className={`flex-1 py-3 ${c ? 'px-2' : 'px-3'}`}>
+        {/* Analytics section */}
+        {!c && (
+          <p className="text-[9px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-[0.2em] px-3 mb-1.5">Analytics</p>
+        )}
+        <div className="space-y-1 mb-3">
+          {filterItems(analyticsItems).map(renderNavItem)}
+        </div>
+
+        {/* Divider */}
+        <div className={`border-t border-gray-100 dark:border-slate-800 mb-3 ${c ? 'mx-1' : 'mx-1'}`} />
+
+        {/* Services section */}
+        {!c && (
+          <p className="text-[9px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-[0.2em] px-3 mb-1.5">Services</p>
+        )}
+        <div className="space-y-1">
+          {filterItems(servicesItems).map(renderNavItem)}
+        </div>
       </nav>
 
       {/* Bottom actions */}
@@ -157,16 +178,48 @@ export function MobileMenu() {
   if (!isMenuOpen && !isSettingsOpen) return null;
   if (!isMenuOpen && isSettingsOpen) return <SettingsModal onClose={() => setIsSettingsOpen(false)} />;
 
-  const allNavItems = [
+  const mobileAnalyticsItems = [
     { module: 'analytics-dashboard' as const, viewTarget: 'analytics' as const, icon: LayoutGrid, label: 'Dashboard', hasSubView: true },
-    { module: 'customers-module' as const, viewTarget: 'customers-list' as const, icon: Users, label: 'Customers' },
-    { module: 'inventory-module' as const, viewTarget: 'inventory-list' as const, icon: Package, label: 'Inventory' },
-    { module: 'money-module' as const, viewTarget: 'money-tracking' as const, icon: Wallet, label: 'Money Tracking' },
+    { module: 'customers-module' as const, viewTarget: 'customers-list' as const, icon: Users, label: 'Customers', hasSubView: false },
     { module: 'data-input' as const, viewTarget: 'dashboard' as const, icon: Plus, label: 'Invoice Creator', hasSubView: false },
+    { module: 'inventory-module' as const, viewTarget: 'inventory-list' as const, icon: Package, label: 'Inventory', hasSubView: false },
+  ];
+  const mobileServicesItems = [
+    { module: 'money-module' as const, viewTarget: 'money-tracking' as const, icon: Wallet, label: 'Money Tracking', hasSubView: false },
     { module: 'todo-module' as const, viewTarget: 'todo-list' as const, icon: ListTodo, label: 'Todo List', hasSubView: false },
     { module: 'notes-module' as const, viewTarget: 'notes' as const, icon: StickyNote, label: 'Notes', hasSubView: false },
   ];
-  const navItems = allNavItems.filter(item => !canViewModule || canViewModule(item.module));
+  type MobileNavItem = { module: Module; viewTarget: View; icon: React.ElementType; label: string; hasSubView: boolean };
+  const filterMobile = (items: MobileNavItem[]) => items.filter(item => !canViewModule || canViewModule(item.module));
+
+  const renderMobileItem = (item: MobileNavItem) => {
+    const isActive = activeModule === item.module;
+    const Icon = item.icon;
+    return (
+      <button
+        key={item.module}
+        onClick={() => {
+          setActiveModule(item.module);
+          setView(item.viewTarget);
+          if (item.hasSubView) setDashboardSubView('overview');
+          setIsMenuOpen(false);
+        }}
+        className={`w-full flex items-center justify-between px-3 py-3 rounded-2xl transition-all font-bold text-sm ${
+          isActive
+            ? 'bg-gradient-to-r from-emerald-500/10 to-blue-500/10 dark:from-emerald-500/20 dark:to-blue-500/20 text-emerald-600 dark:text-emerald-400 shadow-sm'
+            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800'
+        }`}
+      >
+        <div className="flex items-center gap-3">
+          <div className={`p-1.5 rounded-lg ${isActive ? 'bg-emerald-500/20 dark:bg-emerald-500/30' : 'bg-gray-100 dark:bg-slate-800'}`}>
+            <Icon className="w-4 h-4" />
+          </div>
+          {item.label}
+        </div>
+        {isActive && <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0" />}
+      </button>
+    );
+  };
 
   return (
     <>
@@ -180,36 +233,19 @@ export function MobileMenu() {
           </button>
         </div>
 
-        {/* Nav — unified, no section labels */}
-        <nav className="flex-1 overflow-y-auto no-scrollbar px-3 py-3 space-y-1">
-          {navItems.map(item => {
-            const isActive = activeModule === item.module;
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.module}
-                onClick={() => {
-                  setActiveModule(item.module);
-                  setView(item.viewTarget);
-                  if (item.hasSubView) setDashboardSubView('overview');
-                  setIsMenuOpen(false);
-                }}
-                className={`w-full flex items-center justify-between px-3 py-3 rounded-2xl transition-all font-bold text-sm ${
-                  isActive
-                    ? 'bg-gradient-to-r from-emerald-500/10 to-blue-500/10 dark:from-emerald-500/20 dark:to-blue-500/20 text-emerald-600 dark:text-emerald-400 shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`p-1.5 rounded-lg ${isActive ? 'bg-emerald-500/20 dark:bg-emerald-500/30' : 'bg-gray-100 dark:bg-slate-800'}`}>
-                    <Icon className="w-4 h-4" />
-                  </div>
-                  {item.label}
-                </div>
-                {isActive && <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0" />}
-              </button>
-            );
-          })}
+        {/* Nav — 2 sections */}
+        <nav className="flex-1 overflow-y-auto no-scrollbar px-3 py-3">
+          {/* Analytics */}
+          <p className="text-[9px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-[0.2em] px-3 mb-1.5">Analytics</p>
+          <div className="space-y-1 mb-3">
+            {filterMobile(mobileAnalyticsItems).map(renderMobileItem)}
+          </div>
+          <div className="border-t border-gray-100 dark:border-slate-800 mb-3 mx-1" />
+          {/* Services */}
+          <p className="text-[9px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-[0.2em] px-3 mb-1.5">Services</p>
+          <div className="space-y-1">
+            {filterMobile(mobileServicesItems).map(renderMobileItem)}
+          </div>
         </nav>
 
         {/* Bottom — Settings + Light/Dark toggle + Sync */}
