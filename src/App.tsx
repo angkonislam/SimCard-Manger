@@ -28,6 +28,7 @@ const MoneyTracking  = lazy(() => import('./views/MoneyTracking').then(m => ({ d
 const TodoList       = lazy(() => import('./views/TodoList').then(m => ({ default: m.TodoList })));
 const Notes          = lazy(() => import('./views/Notes').then(m => ({ default: m.Notes })));
 import { AuthScreen } from './views/AuthScreen';
+import { AppBootSkeleton, ContentSkeleton } from './components/SkeletonLoader';
 import { NewMonthPrompt } from './modals/NewMonthPrompt';
 import { Permission, can as canFn, canViewModule } from './lib/roles';
 import { useToast } from './components/Toast';
@@ -1267,11 +1268,7 @@ export default function App() {
   const authGateActive = isSupabaseConfigured;
 
   if (authGateActive && (!authChecked || (session && !roleChecked))) {
-    return (
-      <div className="min-h-screen w-full bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 flex items-center justify-center">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-blue-500 animate-pulse" />
-      </div>
-    );
+    return <AppBootSkeleton />;
   }
   if (authGateActive && !session) {
     return <AuthScreen />;
@@ -1289,12 +1286,11 @@ export default function App() {
         
         <MobileMenu />
 
-        <Suspense fallback={
-          <div className="flex-1 flex items-center justify-center py-20">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-blue-500 animate-pulse" />
-          </div>
-        }>
-          {view === 'dashboard' && <Dashboard />}
+        <Suspense fallback={<ContentSkeleton view={view} />}>
+          {isLoading && (view === 'dashboard' || view === 'analytics') ? (
+            <ContentSkeleton view={view} />
+          ) : null}
+          {view === 'dashboard' && !isLoading && <Dashboard />}
 
           {view === 'invoice-preview' && selectedInvoice && (
               <InvoicePreview
